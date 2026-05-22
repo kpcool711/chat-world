@@ -3294,6 +3294,9 @@ function ensureRemoteAudio() {
     audio.style.display = 'none';
     document.body.appendChild(audio);
   }
+  // Make sure nothing is silencing it
+  audio.muted = false;
+  audio.volume = 1.0;
   return audio;
 }
 

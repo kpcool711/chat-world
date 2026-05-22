@@ -3,7 +3,7 @@
 
 // 🔄 Bump this any time we deploy. Browsers will detect the new SW, install it,
 // activate it, and the page will reload automatically to show the latest version.
-const SW_VERSION = '22';
+const SW_VERSION = '23';
 
 const CACHE_NAME = 'chatworld-v1';
 
