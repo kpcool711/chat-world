@@ -388,9 +388,16 @@
   }
   .nav-tab:hover { background: #f5f6f6; }
   .nav-tab .nav-icon {
-    font-size: 20px; line-height: 1;
+    font-size: 20px; line-height: 1; position: relative;
     width: 56px; padding: 3px 0; border-radius: 16px;
     transition: background 0.15s;
+  }
+  .nav-dot {
+    position: absolute; top: -2px; right: 10px;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    background: #ff3b30; color: white; border-radius: 100px;
+    font-size: 11px; font-weight: 700; line-height: 18px;
+    text-align: center; box-shadow: 0 0 0 2px #ffffff;
   }
   .nav-tab .nav-label { font-size: 11px; font-weight: 500; }
   .nav-tab.active { color: var(--purple); }
@@ -2236,6 +2243,8 @@ async function sendPushTo(username, title, body) {
 
 // ============ UNREAD COUNTS ============
 async function updateAppBadge() {
+  // Red dot on the in-app "Chats" tab (visible in browser AND installed PWA)
+  updateNavBadge();
   // Sets the red number badge on the Chat World icon (when installed as PWA).
   // Supported on: iOS 16.4+ Safari (PWA), Chrome desktop, Edge desktop, Chrome Android.
   // Quietly no-ops anywhere else.
@@ -2250,6 +2259,27 @@ async function updateAppBadge() {
       await navigator.clearAppBadge();
     }
   } catch (e) { /* ignore — badge isn't critical */ }
+}
+
+// Shows a red dot/count on the "Chats" tab in the bottom bar when there are
+// unread messages, then clears it once everything's been read.
+function updateNavBadge() {
+  const icon = document.querySelector('.nav-tab[data-tab="chats"] .nav-icon');
+  if (!icon) return;
+  const total = Object.values(state.unreadByChat || {}).reduce(
+    (s, c) => s + (c || 0), 0
+  );
+  let dot = icon.querySelector('.nav-dot');
+  if (total > 0) {
+    if (!dot) {
+      dot = document.createElement('span');
+      dot.className = 'nav-dot';
+      icon.appendChild(dot);
+    }
+    dot.textContent = total > 99 ? '99+' : String(total);
+  } else if (dot) {
+    dot.remove();
+  }
 }
 
 function saveUnreadCounts() {
@@ -4388,6 +4418,7 @@ function wireBottomNav() {
       switchTab(tab.dataset.tab);
     };
   });
+  updateNavBadge();
 }
 
 function switchTab(tab) {
